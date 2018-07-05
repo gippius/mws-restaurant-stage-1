@@ -10,7 +10,6 @@ body,td,th,p{
 body {
 	background-color: #fdfdfd;
 	margin: 0;
-	position:relative;
 }
 ul, li {
 	font-family: Arial, Helvetica, sans-serif;
@@ -296,7 +295,7 @@ nav h1 a {
   #breadcrumb {
     display: flex;
     justify-content: center;
-    width: 100%;
+    max-width: 100%;
   }
   #maincontent {
     display: flex;
@@ -336,26 +335,40 @@ nav h1 a {
     flex-flow: column nowrap;
     align-items: center;
     padding: 0;
-    border: 2px solid gray;
-    border-radius: 3px;
+  }
+  #reviews-container * {
+    display: flex;
+  }
+  #reviews-container > ul {
+    width: 100%;
+    flex-flow: column nowrap;
   }
   #reviews-container > ul > li {
     flex-flow: column nowrap;
     border-top: 2px solid gray;
     border-bottom: 2px solid gray;
+    border-right: none;
+    border-left: none;
+    padding: 0;
+    width: 100%;
   }
   #restaurants-list {
     padding-top: 8px;
     list-style: none;
   }
   #restaurants-list > li {
-    padding-bottom: 16px;
+    padding: 16px 5px;
     margin: 0px 5% 16px 5%;
-    width: 80%;
-    max-width: 80%
+    max-width: 80%;
+  }
+  #restaurant-hours {
+    display: flex;
+    flex-flow: column nowrap;
   }
   #footer {
+    flex-flow: row wrap;
     width: 100%;
+    max-width: 100%;
   }
   #footer > a {
     display: inline-flex;
