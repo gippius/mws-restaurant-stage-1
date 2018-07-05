@@ -35,7 +35,10 @@ h1, h2, h3, h4, h5, h6 {
 article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
 	display: flex;
 }
-
+.inside {
+  display: flex;
+  flex-flow: column nowrap;
+}
 #maincontent {
   display: flex;
   flex-flow: column nowrap;
@@ -64,7 +67,8 @@ nav {
   text-align:center;
 }
 nav h1 {
-  margin: auto;
+  margin-top: 12px;
+  width: 100%;
 }
 nav h1 a {
   color: #fff;
@@ -79,7 +83,8 @@ nav h1 a {
     background-color: #eee;
     font-size: 17px;
     margin: 0;
-    width: calc(50% - 80px);
+    width: 100%;
+    max-width: 100%;
 }
 
 /* Display list items side by side */
@@ -125,10 +130,9 @@ nav h1 a {
 }
 .filter-options h2 {
   color: white;
-  font-size: 1rem;
   font-weight: normal;
   line-height: 1;
-  margin: 0 20px;
+  margin: 8px 20px;
 }
 .filter-options select {
   background-color: white;
@@ -189,10 +193,9 @@ nav h1 a {
 
 /* ====================== Restaurant Details ====================== */
 .inside header {
-  position: fixed;
-  top: 0;
   width: 100%;
-  z-index: 1000;
+  display: flex;
+  flex-flow: column nowrap;
 }
 .inside #map-container {
   height: 500px;
@@ -204,9 +207,8 @@ nav h1 a {
   width: 100%;
 }
 .inside #footer {
-  bottom: 0;
-  position: absolute;
-  width: 50%;
+  display: flex;
+  width: 100%;
 }
 #restaurant-name {
   color: #f18200;
@@ -276,29 +278,67 @@ nav h1 a {
     justify-content: center;
     width: 100%;
   }
-
   #maincontent {
     display: flex;
     flex-flow: column nowrap;
   }
-
   #maincontent > section {
     display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
   }
-
+  #map-container {
+    margin-top: 0;
+  }
   #selection-info {
     display: flex;
     flex-flow: column nowrap;
   }
   .filter-options{
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     justify-content: space-around;
+    padding-bottom: 15px;
+  }
+  .filter-options > h2 {
+    display: none;
+  }
+  .filter-options > select {
+    min-width: 70%;
+  }
+  #restaurant-container {
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 12px;
+  }
+  #reviews-container {
+    flex-flow: column nowrap;
+    align-items: center;
+    padding: 0;
+    border: 2px solid gray;
+    border-radius: 3px;
+  }
+  #reviews-container > ul > li {
+    flex-flow: column nowrap;
+    border-top: 2px solid gray;
+    border-bottom: 2px solid gray;
+  }
+  #restaurants-list {
+    padding-top: 8px;
+    list-style: none;
   }
   #restaurants-list > li {
-    padding-top: 16px;
-    margin: 16px auto;
+    padding-bottom: 16px;
+    margin: 0px 5% 16px 5%;
     width: 80%;
     max-width: 80%
+  }
+  #footer {
+    width: 100%;
+  }
+  #footer > a {
+    display: inline-flex;
+    margin: 0px 5px;
   }
 }
