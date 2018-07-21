@@ -82,7 +82,6 @@ nav h1 a {
     background-color: #eee;
     font-size: 17px;
     margin: 0;
-    width: 100%;
     max-width: 100%;
 }
 
@@ -216,7 +215,6 @@ nav h1 a {
 }
 .inside #footer {
   display: flex;
-  width: 100%;
 }
 #restaurant-name {
   color: #f18200;
@@ -295,7 +293,6 @@ nav h1 a {
   #breadcrumb {
     display: flex;
     justify-content: center;
-    max-width: 100%;
   }
   #maincontent {
     display: flex;
@@ -367,8 +364,6 @@ nav h1 a {
   }
   #footer {
     flex-flow: row wrap;
-    width: 100%;
-    max-width: 100%;
   }
   #footer > a {
     display: inline-flex;

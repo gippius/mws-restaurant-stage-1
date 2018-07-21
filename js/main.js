@@ -8,10 +8,22 @@ var markers = []
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  registerServiceWorker();
   initMap(); // added 
   fetchNeighborhoods();
   fetchCuisines();
 });
+
+const registerServiceWorker = function () {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function (reg) {
+        console.log('Registration succeeded. Scope is ' + reg.scope);
+      }).catch(function (error) {
+        console.log('Registration failed with ' + error);
+      });
+  }
+}
 
 /**
  * Fetch all neighborhoods and set their HTML.
@@ -73,10 +85,10 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
  */
 initMap = () => {
   self.newMap = L.map('map', {
-        center: [40.722216, -73.987501],
-        zoom: 12,
-        scrollWheelZoom: false
-      });
+    center: [40.722216, -73.987501],
+    zoom: 12,
+    scrollWheelZoom: false
+  });
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
     mapboxToken: 'pk.eyJ1IjoibWFyd3luMTIiLCJhIjoiY2ppeXoybXdlMDFtNzN2cWV6dXp6bG1tdiJ9._CtokLoKmoypqq2JefcixQ',
     maxZoom: 18,
@@ -181,7 +193,8 @@ createRestaurantHTML = (restaurant) => {
   const more = document.createElement('a');
   more.innerHTML = 'View Details';
   more.href = DBHelper.urlForRestaurant(restaurant);
-  
+  more.setAttribute('role', 'button');
+
   li.append(more)
 
   return li
@@ -201,7 +214,7 @@ addMarkersToMap = (restaurants = self.restaurants) => {
     self.markers.push(marker);
   });
 
-} 
+}
 /* addMarkersToMap = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
     // Add marker to the map
