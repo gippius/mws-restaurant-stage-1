@@ -1,8 +1,15 @@
-let restaurants,
-  neighborhoods,
-  cuisines
-var newMap
-var markers = []
+let restaurants;
+let neighborhoods;
+let cuisines;
+
+var newMap;
+var markers = [];
+
+let db;
+
+const IDB_NAME = 'restaurant-reviews';
+const IDB_STORE = 'restaurants';
+const IDB_V = 1;
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -12,6 +19,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   initMap(); // added 
   fetchNeighborhoods();
   fetchCuisines();
+  registerIDB();
 });
 
 const registerServiceWorker = function () {
@@ -19,11 +27,25 @@ const registerServiceWorker = function () {
     navigator.serviceWorker.register('/sw.js')
       .then(function (reg) {
         console.log('Registration succeeded. Scope is ' + reg.scope);
-      }).catch(function (error) {
+      })
+      .catch(function (error) {
         console.log('Registration failed with ' + error);
       });
   }
 }
+
+const registerIDB = async () => {
+  if (!('indexedDB' in window)) {
+    console.warn('No indexedDB capabilities detected.');
+    return;
+  }
+
+  self.db = await idb.open(IDB_NAME, IDB_V, upgradeDB => {
+    if (!upgradeDB.objectStoreNames.contains(IDB_STORE)) {
+      upgradeDB.createObjectStore(IDB_STORE, {keyPath: 'id'});
+    }
+  });
+};
 
 /**
  * Fetch all neighborhoods and set their HTML.
