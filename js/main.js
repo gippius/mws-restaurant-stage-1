@@ -15,7 +15,7 @@ const IDB_V = 1;
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
-  registerServiceWorker();
+  //registerServiceWorker();
   initMap(); // added 
   fetchNeighborhoods();
   fetchCuisines();
@@ -39,26 +39,22 @@ const registerIDB = async () => {
     console.warn('No indexedDB capabilities detected.');
     return;
   }
-
-  self.db = await idb.open(IDB_NAME, IDB_V, upgradeDB => {
-    if (!upgradeDB.objectStoreNames.contains(IDB_STORE)) {
-      upgradeDB.createObjectStore(IDB_STORE, {keyPath: 'id'});
-    }
-  });
 };
 
 /**
  * Fetch all neighborhoods and set their HTML.
  */
-fetchNeighborhoods = () => {
-  DBHelper.fetchNeighborhoods((error, neighborhoods) => {
-    if (error) { // Got an error
-      console.error(error);
-    } else {
-      self.neighborhoods = neighborhoods;
-      fillNeighborhoodsHTML();
-    }
-  });
+function fetchNeighborhoods() {
+  DBHelper.fetchNeighborhoods()
+    .then((res, error) => {
+      if (error) {
+        console.error('Cannot fetch data!')
+        console.error(error);
+      } else {
+        self.neighborhoods = res;
+        fillNeighborhoodsHTML();
+      }
+    })
 }
 
 /**
@@ -78,14 +74,16 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
  * Fetch all cuisines and set their HTML.
  */
 fetchCuisines = () => {
-  DBHelper.fetchCuisines((error, cuisines) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.cuisines = cuisines;
-      fillCuisinesHTML();
-    }
-  });
+  DBHelper.fetchCuisines()
+    .then((res, error) => {
+      if (error) {
+        console.error('Cannot fetch data!')
+        console.error(error);
+      } else {
+        self.cuisines = res;
+        fillCuisinesHTML();
+      }
+    })
 }
 
 /**
@@ -148,14 +146,11 @@ updateRestaurants = () => {
   const cuisine = cSelect[cIndex].value;
   const neighborhood = nSelect[nIndex].value;
 
-  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      resetRestaurants(restaurants);
+  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood)
+    .then(res => {
+      resetRestaurants(res);
       fillRestaurantsHTML();
-    }
-  })
+    })
 }
 
 /**

@@ -59,7 +59,7 @@ class DBHelper {
   /**
    * Fetch restaurants by a cuisine and a neighborhood with proper error handling.
    */
-  static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
+  static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood) {
     return DBHelper.fetchRestaurants()
       .then(res => {
         let result = res;
@@ -69,8 +69,10 @@ class DBHelper {
         }
 
         if (neighborhood !== 'all') {
-          results.filter(r => r.neighborhood === neighborhood);
+          result = result.filter(r => r.neighborhood === neighborhood);
         }
+
+        return result;
       })
   }
 
@@ -110,7 +112,7 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}`);
+    return (`/img/${restaurant.photograph}.jpg`);
   }
 
   /**
