@@ -29,7 +29,7 @@ class DBHelper {
   /**
    * Fetch a restaurant by its ID.
    */
-  static fetchRestaurantById(id, callback) {
+  static fetchRestaurantById(id) {
     return fetch(`${DBHelper.DATABASE_URL}/${id}`)
       .then(res => {
         if (!res) {
