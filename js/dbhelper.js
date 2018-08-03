@@ -1,6 +1,7 @@
 /**
  * Common database helper functions.
  */
+
 class DBHelper {
 
   /**
@@ -15,7 +16,7 @@ class DBHelper {
   /**
    * Fetch all restaurants.
    */
-  static fetchRestaurants(callback) {
+  static fetchRestaurants() {
     return fetch(DBHelper.DATABASE_URL)
       .then(res => {
         if (!res) {
@@ -23,6 +24,24 @@ class DBHelper {
         } else {
           return res.json();
         }
+      })
+      .then(res => {
+        /*
+         * Saving into IDb, then returning for helpers function if any
+         */
+
+        res.forEach(restaurant => {
+          dbPromise.then((db) => {
+            var tx = db.transaction(IDB_STORE_NAME, 'readwrite');
+            var store = tx.objectStore(IDB_STORE_NAME);
+            
+            store.put(restaurant, restaurant.id);
+            return tx.complete;
+          })
+            .then(() => { console.log('restaurant data saved!') })
+        })
+
+        return res;
       })
   }
 

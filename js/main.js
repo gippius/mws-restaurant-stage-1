@@ -5,22 +5,77 @@ let cuisines;
 var newMap;
 var markers = [];
 
-let db;
+const IDB_NAME = "restaurants-review";
+const IDB_STORE_NAME = "restaurants";
 
-const IDB_NAME = 'restaurant-reviews';
-const IDB_STORE = 'restaurants';
-const IDB_V = 1;
+/* Thanks, Jake!
+ * https://github.com/jakearchibald/idb/
+ */
+let idb = self.idb;
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  registerIDB();
   //registerServiceWorker();
   initMap(); // added 
   fetchNeighborhoods();
   fetchCuisines();
-  registerIDB();
 });
+
+function registerIDB() {
+  console.log('registering IDB');
+
+  self.dbPromise = idb.open(IDB_NAME, 1, upgradeDb => {
+    var store = upgradeDb.createObjectStore(IDB_STORE_NAME, {
+      keyPath: 'id'
+    });
+  });
+
+  /*
+  dbPromise.then((db) => {
+    var tx = db.transaction(IDB_STORE_NAME);
+    var store = tx.objectStore(IDB_STORE_NAME);
+
+    return store.openCursor();
+  }).then(function loopResults(cursor) {
+    if (!cursor) {
+      return;
+    }
+    //console.log('cursored at: ', cursor.key);
+    return cursor.continue().then(loopResults);
+  }).then(() => {
+    //console.log('Done')
+  })
+  */
+}
+
+function startIDB() {
+  idb.get('restaurants')
+    .then(res => {
+      console.log(res);
+      if (!res) {
+        console.log('No restaurants found, setting new one');
+        idb.set('restaurant', 'hehehe')
+          .then(() => {
+            console.log('Restaurant set, getting from DB...')
+            idb.get('restaurant')
+              .then(res => {
+                console.log('Got restaurant from DB!')
+                console.log(res)
+              })
+          })
+      } else {
+        console.log('Found restaurant inside DB, getting...');
+        idb.get('restaurant')
+          .then(res => {
+            console.log('Got restaurant from DB!')
+            console.log(res)
+          })
+      }
+    });
+}
 
 const registerServiceWorker = function () {
   if ('serviceWorker' in navigator) {
@@ -33,13 +88,6 @@ const registerServiceWorker = function () {
       });
   }
 }
-
-const registerIDB = async () => {
-  if (!('indexedDB' in window)) {
-    console.warn('No indexedDB capabilities detected.');
-    return;
-  }
-};
 
 /**
  * Fetch all neighborhoods and set their HTML.
