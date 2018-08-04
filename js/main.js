@@ -17,20 +17,63 @@ let idb = self.idb;
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  registerServiceWorker();
   registerIDB();
-  //registerServiceWorker();
+
   initMap(); // added 
+
+  // Retrieving data from cache
+  fetchNeighborhoodsFromCache();
+  fetchCuisinesFromCache();
+
+  // Fetching data from cache
   fetchNeighborhoods();
   fetchCuisines();
 });
+
+function fetchNeighborhoodsFromCache() {
+  dbPromise.then((db) => {
+    var tx = db.transaction(IDB_STORE_NAME);
+    var store = tx.objectStore(IDB_STORE_NAME);
+
+    return store.getAll();
+  })
+    .then(res => {
+      const neighborhoods = res.map((v, i) => res[i].neighborhood);
+      const uniqueNeighborhoods = neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i);
+
+      self.neighborhoods = uniqueNeighborhoods;
+      console.log('Cusines list pulled from cache!');
+      console.log(self.neighborhoods);
+
+      fillNeighborhoodsHTML();
+    })
+}
+
+function fetchCuisinesFromCache() {
+  dbPromise.then((db) => {
+    var tx = db.transaction(IDB_STORE_NAME);
+    var store = tx.objectStore(IDB_STORE_NAME);
+
+    return store.getAll();
+  })
+    .then(res => {
+      const cuisines = res.map((v, i) => res[i].cuisine_type);
+      const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i);
+
+      self.cuisines = uniqueCuisines;
+      console.log('Cuisines list pulled from cache!');
+      console.log(self.cuisines);
+
+      fillNeighborhoodsHTML();
+    })
+}
 
 function registerIDB() {
   console.log('registering IDB');
 
   self.dbPromise = idb.open(IDB_NAME, 1, upgradeDb => {
-    var store = upgradeDb.createObjectStore(IDB_STORE_NAME, {
-      keyPath: 'id'
-    });
+    var store = upgradeDb.createObjectStore(IDB_STORE_NAME);
   });
 
   /*
@@ -51,35 +94,9 @@ function registerIDB() {
   */
 }
 
-function startIDB() {
-  idb.get('restaurants')
-    .then(res => {
-      console.log(res);
-      if (!res) {
-        console.log('No restaurants found, setting new one');
-        idb.set('restaurant', 'hehehe')
-          .then(() => {
-            console.log('Restaurant set, getting from DB...')
-            idb.get('restaurant')
-              .then(res => {
-                console.log('Got restaurant from DB!')
-                console.log(res)
-              })
-          })
-      } else {
-        console.log('Found restaurant inside DB, getting...');
-        idb.get('restaurant')
-          .then(res => {
-            console.log('Got restaurant from DB!')
-            console.log(res)
-          })
-      }
-    });
-}
-
 const registerServiceWorker = function () {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/sw.js', {})
       .then(function (reg) {
         console.log('Registration succeeded. Scope is ' + reg.scope);
       })
@@ -110,6 +127,7 @@ function fetchNeighborhoods() {
  */
 fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
+
   neighborhoods.forEach(neighborhood => {
     const option = document.createElement('option');
     option.innerHTML = neighborhood;

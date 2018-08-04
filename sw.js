@@ -1,11 +1,16 @@
+const CACHE_NAME = 'restaurant-reviews'
 const CACHE_VER = 'v1';
 const CACHE_WHITELIST = ['v1'];
-const CASHING_FILES = [
+const CASHED_URLS = [
+  '/',
   '/js/dbhelper.js',
+  '/js/idb.js',
   '/js/main.js',
+  '/manifest.json',
   '/js/restaurant_info.js',
   '/index.html',
   '/restaurant.html',
+  '/css/styles.css',
   '/img/1.jpg',
   '/img/2.jpg',
   '/img/3.jpg',
@@ -16,23 +21,39 @@ const CASHING_FILES = [
   '/img/8.jpg',
   '/img/9.jpg',
   '/img/10.jpg',
-  '/css/styles.css'
+  'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',
+  'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css'
 ];
 
-self.addEventListener('install', function (event) {
-  event.waitUntil(
-    caches.open('v1').then(function (cache) {
-      console.log('SW installed, files: ' + CACHING_FILES)
-      return cache.addAll(CASHING_FILES);
-    })
-  );
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(`${CACHE_NAME}-${CACHE_VER}`)
+      .then(cache => {
+        return cache.addAll(CASHED_URLS)
+      })
+  )
 });
 
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(res => {
+      if (res) {
+        return res;
+      }
+
+      return fetch(e.res);
+    })
+  )
+});
+
+/*
 self.addEventListener('fetch', function (event) {
+  console.log(event.request)
   event.respondWith(
     caches.match(event.request)
       .then(function (response) {
         if (response) {
+          console.log(response);
           return response;
         }
         return fetch(event.request);
@@ -40,13 +61,13 @@ self.addEventListener('fetch', function (event) {
   )
 });
 
-self.addEventListener('activate', function(event){
+self.addEventListener('activate', function (event) {
   var cacheWhitelist = ['v1'];
   event.waitUntil(
-    caches.keys().then(function(cacheNames){
+    caches.keys().then(function (cacheNames) {
       return Promise.all(
-        cacheNames.map(function(cacheName){
-          if (cacheWhitelist.indexOf(cacheName) === -1){
+        cacheNames.map(function (cacheName) {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
             return caches.delete(cacheName);
           }
         })
@@ -54,3 +75,5 @@ self.addEventListener('activate', function(event){
     })
   );
 });
+
+*/

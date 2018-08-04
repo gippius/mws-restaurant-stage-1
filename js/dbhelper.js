@@ -19,6 +19,7 @@ class DBHelper {
   static fetchRestaurants() {
     return fetch(DBHelper.DATABASE_URL)
       .then(res => {
+        console.log(res);
         if (!res) {
           throw `Error: ${res.status}, ${res.statusText}`
         } else {
@@ -27,9 +28,9 @@ class DBHelper {
       })
       .then(res => {
         /*
-         * Saving into IDb, then returning for helpers function if any
+         * Saving fresh data into IDb
          */
-
+        console.log(res);
         res.forEach(restaurant => {
           dbPromise.then((db) => {
             var tx = db.transaction(IDB_STORE_NAME, 'readwrite');
@@ -38,7 +39,7 @@ class DBHelper {
             store.put(restaurant, restaurant.id);
             return tx.complete;
           })
-            .then(() => { console.log('restaurant data saved!') })
+            .then(() => { console.log('Restaurant data saved!') })
         })
 
         return res;
