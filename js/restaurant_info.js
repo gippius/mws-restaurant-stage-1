@@ -8,11 +8,24 @@ const IDB_STORE_NAME = "restaurants";
  * Initialize map as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  registerServiceWorker();
   registerIDB();
   fetchRestaurantFromCache();
 
   initMap();
 });
+
+const registerServiceWorker = function () {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js', {})
+      .then(function (reg) {
+        console.log('Registration succeeded. Scope is ' + reg.scope);
+      })
+      .catch(function (error) {
+        console.log('Registration failed with ' + error);
+      });
+  }
+}
 
 function registerIDB() {
   const idb = self.idb;
@@ -38,6 +51,7 @@ function fetchRestaurantFromCache() {
         console.log('Retrieved restaurant data info from IDB cache.');
         console.log(cursor.value);
         self.restaurant = cursor.value;
+        fillRestaurantHTML();
         return;
       } else {
         return cursor.continue().then(iterateCursor);
