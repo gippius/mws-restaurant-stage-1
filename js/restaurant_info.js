@@ -1,11 +1,49 @@
 let restaurant;
 var newMap;
+
+const IDB_NAME = "restaurants-review";
+const IDB_STORE_NAME = "restaurants";
+
 /**
  * Initialize map as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  registerIDB();
+  fetchRestaurantFromCache();
+
   initMap();
 });
+
+function registerIDB() {
+  const idb = self.idb;
+
+  self.dbPromise = idb.open(IDB_NAME, 1);
+}
+
+// Fetching single restaurant data from IDb cache
+function fetchRestaurantFromCache() {
+  const id = getParameterByName('id');
+
+  dbPromise.then(db => {
+    var tx = db.transaction(IDB_STORE_NAME);
+    var store = tx.objectStore(IDB_STORE_NAME);
+
+    return store.openCursor();
+  })
+    .then(function iterateCursor(cursor) {
+      if (!cursor) {
+        console.log('No cached data for this restaurant.');
+        return;
+      } else if (cursor.value.id == id) {
+        console.log('Retrieved restaurant data info from IDB cache.');
+        console.log(cursor.value);
+        self.restaurant = cursor.value;
+        return;
+      } else {
+        return cursor.continue().then(iterateCursor);
+      }
+    });
+}
 
 /**
  * Initialize leaflet map

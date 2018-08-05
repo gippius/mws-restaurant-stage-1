@@ -3,14 +3,14 @@ const CACHE_VER = 'v1';
 const CACHE_WHITELIST = ['v1'];
 const CASHED_URLS = [
   '/',
-  '/js/dbhelper.js',
-  '/js/idb.js',
-  '/js/main.js',
-  '/manifest.json',
-  '/js/restaurant_info.js',
   '/index.html',
   '/restaurant.html',
   '/css/styles.css',
+  '/manifest.json',
+  '/js/idb.js',
+  '/js/dbhelper.js',
+  '/js/main.js',
+  '/js/restaurant_info.js',
   '/img/1.jpg',
   '/img/2.jpg',
   '/img/3.jpg',
@@ -35,6 +35,8 @@ self.addEventListener('install', (e) => {
 });
 
 self.addEventListener('fetch', e => {
+  if (!CASHED_URLS.includes(e.request.url)) return;
+
   e.respondWith(
     caches.match(e.request).then(res => {
       if (res) {
