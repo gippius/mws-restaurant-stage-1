@@ -23,15 +23,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   initMap(); // added 
 
   // Retrieving data from cache
-  fetchNeighborhoodsFromCache();
-  fetchCuisinesFromCache();
+  fetchNeighborhoodsAndCuisinesFromCache();
 
   // Fetching data from cache
   fetchNeighborhoods();
   fetchCuisines();
 });
 
-function fetchNeighborhoodsFromCache() {
+function fetchNeighborhoodsAndCuisinesFromCache() {
   dbPromise.then((db) => {
     var tx = db.transaction(IDB_STORE_NAME);
     var store = tx.objectStore(IDB_STORE_NAME);
@@ -46,18 +45,6 @@ function fetchNeighborhoodsFromCache() {
       console.log('Cusines list pulled from cache!');
       console.log(self.neighborhoods);
 
-      fillNeighborhoodsHTML();
-    })
-}
-
-function fetchCuisinesFromCache() {
-  dbPromise.then((db) => {
-    var tx = db.transaction(IDB_STORE_NAME);
-    var store = tx.objectStore(IDB_STORE_NAME);
-
-    return store.getAll();
-  })
-    .then(res => {
       const cuisines = res.map((v, i) => res[i].cuisine_type);
       const uniqueCuisines = cuisines.filter((v, i) => cuisines.indexOf(v) == i);
 
@@ -66,6 +53,7 @@ function fetchCuisinesFromCache() {
       console.log(self.cuisines);
 
       fillNeighborhoodsHTML();
+      fillCuisinesHTML();
     })
 }
 
@@ -127,11 +115,41 @@ function fetchNeighborhoods() {
  */
 fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
+  // resetting current dropdown
+  select.innerHTML = '';
+
+  // creating initial option
+  const initialOption = document.createElement('option');
+  initialOption.innerText = 'All Neighbourhoods'
+  initialOption.value = 'all';
+  select.append(initialOption);
 
   neighborhoods.forEach(neighborhood => {
     const option = document.createElement('option');
     option.innerHTML = neighborhood;
     option.value = neighborhood;
+    select.append(option);
+  });
+}
+
+/**
+ * Set cuisines HTML.
+ */
+fillCuisinesHTML = (cuisines = self.cuisines) => {
+  const select = document.getElementById('cuisines-select');
+  // resetting current dropdown
+  select.innerHTML = '';
+
+  // creating initial option
+  const initialOption = document.createElement('option');
+  initialOption.innerText = 'All Cuisines'
+  initialOption.value = 'all';
+  select.append(initialOption);
+
+  cuisines.forEach(cuisine => {
+    const option = document.createElement('option');
+    option.innerHTML = cuisine;
+    option.value = cuisine;
     select.append(option);
   });
 }
@@ -150,20 +168,6 @@ fetchCuisines = () => {
         fillCuisinesHTML();
       }
     })
-}
-
-/**
- * Set cuisines HTML.
- */
-fillCuisinesHTML = (cuisines = self.cuisines) => {
-  const select = document.getElementById('cuisines-select');
-
-  cuisines.forEach(cuisine => {
-    const option = document.createElement('option');
-    option.innerHTML = cuisine;
-    option.value = cuisine;
-    select.append(option);
-  });
 }
 
 /**
@@ -212,9 +216,40 @@ updateRestaurants = () => {
   const cuisine = cSelect[cIndex].value;
   const neighborhood = nSelect[nIndex].value;
 
+  fetchRestaurantByCuisineAndNeighborhoodFromCache(cuisine, neighborhood);
+
   DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood)
     .then(res => {
       resetRestaurants(res);
+      fillRestaurantsHTML();
+    })
+    .catch(err => {
+      console.error('Error on fetching data!');
+      console.error(err);
+    })
+}
+
+// Fetching restaurants data from IDB
+function fetchRestaurantByCuisineAndNeighborhoodFromCache(cuisine, neighborhood) {
+  console.log('Updating view using idb cache..');
+  dbPromise.then((db) => {
+    var tx = db.transaction(IDB_STORE_NAME);
+    var store = tx.objectStore(IDB_STORE_NAME);
+
+    return store.getAll();
+  })
+    .then(res => {
+      let result = res;
+
+      if (cuisine !== 'all') {
+        result = result.filter(r => r.cuisine_type === cuisine);
+      }
+
+      if (neighborhood !== 'all') {
+        result = result.filter(r => r.neighborhood === neighborhood);
+      }
+
+      resetRestaurants(result);
       fillRestaurantsHTML();
     })
 }
@@ -240,6 +275,7 @@ resetRestaurants = (restaurants) => {
  * Create all restaurants HTML and add them to the webpage.
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
+  console.trace(restaurants)
   const ul = document.getElementById('restaurants-list');
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
